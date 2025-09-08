@@ -19,6 +19,10 @@ class Analytics {
   private userId?: string
   private queue: AnalyticsEvent[] = []
   private isInitialized = false
+  private isEngagementTracked = false
+  private handleVisibilityChangeRef?: () => void
+  private handleBeforeUnloadRef?: () => void
+  private trackScrollDepthRef?: () => void
 
   static getInstance(): Analytics {
     if (!Analytics.instance) {
@@ -53,8 +57,7 @@ class Analytics {
   }
 
   private getUserProperties(): UserProperties {
-    return {
-      userId: this.userId,
+    const props: UserProperties = {
       sessionId: this.sessionId,
       userAgent: navigator.userAgent,
       viewport: {
@@ -64,6 +67,12 @@ class Analytics {
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       language: navigator.language,
     }
+
+    if (this.userId) {
+      ;(props as UserProperties).userId = this.userId
+    }
+
+    return props
   }
 
   setUserId(userId: string) {
@@ -137,6 +146,11 @@ class Analytics {
   }
 
   private trackEngagement() {
+    if (this.isEngagementTracked) {
+      return
+    }
+    this.isEngagementTracked = true
+
     let startTime = Date.now()
     let isActive = true
 
@@ -167,9 +181,25 @@ class Analytics {
 
     // Track before page unload
     const handleBeforeUnload = () => {
-      trackTimeOnPage()
+      try {
+        trackTimeOnPage()
+      } finally {
+        // Attempt to remove listeners to avoid leaks in dev/HMR
+        if (this.handleVisibilityChangeRef) {
+          document.removeEventListener("visibilitychange", this.handleVisibilityChangeRef)
+        }
+        if (this.handleBeforeUnloadRef) {
+          window.removeEventListener("beforeunload", this.handleBeforeUnloadRef)
+        }
+        if (this.trackScrollDepthRef) {
+          window.removeEventListener("scroll", this.trackScrollDepthRef)
+        }
+        this.isEngagementTracked = false
+      }
     }
 
+    this.handleVisibilityChangeRef = handleVisibilityChange
+    this.handleBeforeUnloadRef = handleBeforeUnload
     document.addEventListener("visibilitychange", handleVisibilityChange)
     window.addEventListener("beforeunload", handleBeforeUnload)
 
@@ -191,6 +221,7 @@ class Analytics {
       }
     }
 
+    this.trackScrollDepthRef = trackScrollDepth
     window.addEventListener("scroll", trackScrollDepth, { passive: true })
   }
 
@@ -242,7 +273,8 @@ export const analytics = Analytics.getInstance()
 // React Hook for analytics
 export function useAnalytics() {
   const trackEvent = (name: string, properties?: Record<string, any>) => {
-    analytics.track({ name, properties })
+    const event: AnalyticsEvent = properties ? { name, properties } : { name }
+    analytics.track(event)
   }
 
   const trackMatchFilter = (filters: Record<string, any>) => {
