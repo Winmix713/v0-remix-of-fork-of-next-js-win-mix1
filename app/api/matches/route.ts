@@ -94,8 +94,13 @@ export async function GET(request: NextRequest) {
       query = query.eq("league", validatedQuery.league)
     }
     if (validatedQuery.btts !== undefined) {
-      // This would need to be calculated based on goals
-      query = query.gt("full_time_home_goals", 0).gt("full_time_away_goals", 0)
+      // Filter matches where both teams scored (BTTS = true) or not (BTTS = false)
+      if (validatedQuery.btts) {
+        query = query.gt("full_time_home_goals", 0).gt("full_time_away_goals", 0)
+      } else {
+        // At least one team did not score
+        query = query.or("full_time_home_goals.eq.0,full_time_away_goals.eq.0")
+      }
     }
 
     const { data, error, count } = await query
