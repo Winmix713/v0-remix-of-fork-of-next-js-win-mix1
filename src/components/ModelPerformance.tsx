@@ -7,14 +7,15 @@ interface ModelPerformanceData {
   id: string;
   model_name: string;
   model_version: string;
-  accuracy: number;
-  precision_score: number;
-  recall_score: number;
-  f1_score: number;
-  time_period: string;
-  total_predictions: number;
-  correct_predictions: number;
-  last_updated: string;
+  accuracy: number | null;
+  precision_score: number | null;
+  recall_score: number | null;
+  f1_score: number | null;
+  total_predictions: number | null;
+  correct_predictions: number | null;
+  created_at: string | null;
+  updated_at: string | null;
+  metadata: unknown;
 }
 export const ModelPerformance = () => {
   const {
@@ -26,7 +27,7 @@ export const ModelPerformance = () => {
       const {
         data,
         error
-      } = await supabase.from('model_performance').select('*').order('time_period', {
+      } = await supabase.from('model_performance').select('*').order('created_at', {
         ascending: false
       }).limit(6);
       if (error) throw error;
@@ -43,9 +44,9 @@ export const ModelPerformance = () => {
   }
   const latestPerformance = performance?.[0];
   const chartData = performance?.map(p => ({
-    period: p.time_period,
-    accuracy: p.accuracy,
-    precision: p.precision_score
+    period: p.created_at ? new Date(p.created_at).toLocaleDateString() : 'Unknown',
+    accuracy: p.accuracy || 0,
+    precision: p.precision_score || 0
   })).reverse();
   return <Card>
       <CardHeader>
@@ -59,24 +60,24 @@ export const ModelPerformance = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Accuracy</p>
-                <p className="text-2xl font-bold">{latestPerformance.accuracy.toFixed(1)}%</p>
-                <Progress value={latestPerformance.accuracy} className="h-2" />
+                <p className="text-2xl font-bold">{(latestPerformance.accuracy || 0).toFixed(1)}%</p>
+                <Progress value={latestPerformance.accuracy || 0} className="h-2" />
               </div>
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Precision</p>
-                <p className="text-2xl font-bold">{latestPerformance.precision_score.toFixed(1)}%</p>
-                <Progress value={latestPerformance.precision_score} className="h-2" />
+                <p className="text-2xl font-bold">{(latestPerformance.precision_score || 0).toFixed(1)}%</p>
+                <Progress value={latestPerformance.precision_score || 0} className="h-2" />
               </div>
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Total Predictions</p>
-                <p className="text-2xl font-bold">{latestPerformance.total_predictions}</p>
+                <p className="text-2xl font-bold">{latestPerformance.total_predictions || 0}</p>
               </div>
 
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Correct</p>
-                <p className="text-2xl font-bold">{latestPerformance.correct_predictions}</p>
+                <p className="text-2xl font-bold">{latestPerformance.correct_predictions || 0}</p>
               </div>
             </div>
 
@@ -95,7 +96,7 @@ export const ModelPerformance = () => {
               </div>}
 
             <p className="text-xs text-muted-foreground">
-              Last updated: {new Date(latestPerformance.last_updated).toLocaleString()} • Model: {latestPerformance.model_name} {latestPerformance.model_version}
+              Last updated: {latestPerformance.updated_at ? new Date(latestPerformance.updated_at).toLocaleString() : 'Never'} • Model: {latestPerformance.model_name} {latestPerformance.model_version}
             </p>
           </>}
 

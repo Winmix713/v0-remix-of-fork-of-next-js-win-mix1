@@ -45,7 +45,7 @@ export function PredictionReviewPanel({
   });
   const reviewMutation = useMutation({
     mutationFn: submitPredictionReview,
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["blocked-predictions"]
       });

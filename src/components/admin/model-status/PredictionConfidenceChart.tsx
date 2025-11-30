@@ -42,7 +42,7 @@ export const PredictionConfidenceChart = memo(function PredictionConfidenceChart
     error
   } = useQuery<AnalyticsResponse>({
     queryKey: ["admin-model-analytics", windowDays],
-    queryFn: async () => {
+    queryFn: async (): Promise<AnalyticsResponse> => {
       const {
         data,
         error
@@ -52,6 +52,7 @@ export const PredictionConfidenceChart = memo(function PredictionConfidenceChart
         }
       });
       if (error) throw new Error(error.message);
+      if (!data) throw new Error('No data returned from analytics function');
       return data;
     },
     refetchInterval: 60000 // Refetch every minute

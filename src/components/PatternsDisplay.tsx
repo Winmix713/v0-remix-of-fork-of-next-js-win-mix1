@@ -6,11 +6,14 @@ import { TrendingUp, TrendingDown, Target, Clock } from "lucide-react";
 interface Pattern {
   id: string;
   team_name: string;
+  team_id: string | null;
   pattern_type: string;
-  pattern_data: any;
-  confidence: number;
-  detected_at: string;
-  expires_at: string | null;
+  pattern_data: unknown;
+  confidence: number | null;
+  occurrences: number | null;
+  created_at: string | null;
+  last_seen: string | null;
+  created_by: string | null;
 }
 export const PatternsDisplay = ({
   teamName
@@ -51,7 +54,8 @@ export const PatternsDisplay = ({
         return null;
     }
   };
-  const getPatternColor = (confidence: number) => {
+  const getPatternColor = (confidence: number | null) => {
+    if (!confidence) return "bg-gray-500";
     if (confidence >= 80) return "bg-green-500";
     if (confidence >= 60) return "bg-yellow-500";
     return "bg-blue-500";
@@ -64,15 +68,16 @@ export const PatternsDisplay = ({
       pattern_type,
       pattern_data
     } = pattern;
+    const data = pattern_data as Record<string, any>;
     switch (pattern_type) {
       case 'streak':
-        return `${pattern_data.streak_length} ${pattern_data.streak_type} streak`;
+        return `${data?.streak_length || 0} ${data?.streak_type || 'unknown'} streak`;
       case 'scoring_timing':
-        return `${pattern_data.timing === 'early_scorer' ? 'Early scorer' : 'Late bloomer'} (${pattern_data.first_half_percentage}% first half)`;
+        return `${data?.timing === 'early_scorer' ? 'Early scorer' : 'Late bloomer'} (${data?.first_half_percentage || 0}% first half)`;
       case 'venue_performance':
-        return `Stronger ${pattern_data.stronger_venue} (${pattern_data.difference}% difference)`;
+        return `Stronger ${data?.stronger_venue || 'venue'} (${data?.difference || 0}% difference)`;
       case 'btts_tendency':
-        return `${pattern_data.tendency === 'high' ? 'High' : 'Low'} BTTS (${pattern_data.btts_percentage}%)`;
+        return `${data?.tendency === 'high' ? 'High' : 'Low'} BTTS (${data?.btts_percentage || 0}%)`;
       default:
         return 'Unknown pattern';
     }
@@ -102,15 +107,15 @@ export const PatternsDisplay = ({
                   <div className="flex items-center gap-2">
                     <p className="font-semibold">{pattern.team_name}</p>
                     <Badge className={getPatternColor(pattern.confidence)}>
-                      {pattern.confidence.toFixed(0)}% confidence
+                      {(pattern.confidence || 0).toFixed(0)}% confidence
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {formatPatternTitle(pattern.pattern_type)}
                   </p>
                   <p className="text-sm">{formatPatternDescription(pattern)}</p>
-                  {pattern.expires_at && <p className="text-xs text-muted-foreground">
-                      Expires: {new Date(pattern.expires_at).toLocaleDateString()}
+                  {pattern.last_seen && <p className="text-xs text-muted-foreground">
+                      Last seen: {new Date(pattern.last_seen).toLocaleDateString()}
                     </p>}
                 </div>
               </div>)}
