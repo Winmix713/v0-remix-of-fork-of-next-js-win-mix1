@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 interface SystemLog {
   id: string;
   component: string;
-  status: "info" | "warning" | "error";
+  status: string; // Changed from enum to string to match DB
   message: string | null;
   details: Record<string, unknown> | null;
   created_at: string | null;

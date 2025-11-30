@@ -1,6 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import Sidebar from '@/components/navigation/Sidebar';
-import TopBar from '@/components/TopBar';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import CorrelationHeatmap from '@/components/crossleague/CorrelationHeatmap';

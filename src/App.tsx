@@ -1,4 +1,3 @@
-import React from 'react';
 import { Toaster } from '@/components/ui/toaster';
 // import ToastPortal from '@/components/ui/ToastPortal'; // Ha a Toaster (shadcn) az új, ezt érdemes lehet kivenni
 import { TooltipProvider } from '@/components/ui/tooltip';

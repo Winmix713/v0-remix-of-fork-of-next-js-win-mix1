@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import Sidebar from '@/components/navigation/Sidebar';
-import TopBar from '@/components/TopBar';
 import { Calendar } from 'lucide-react';
 import type { League, Match } from '@/types/database';
 import PageLoading from '@/components/ui/PageLoading';
@@ -50,10 +48,7 @@ const Matches = () => {
     },
     enabled: !!selectedLeagueId
   });
-  return <div className="min-h-screen">
-      <Sidebar />
-      <TopBar />
-      <main className="ml-0 md:ml-[84px] py-10 sm:py-14">
+  return <main className="py-10 sm:py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <div className="inline-flex items-center gap-2 rounded-full ring-1 ring-primary/20 bg-primary/10 px-2.5 py-1 mb-2">
@@ -142,7 +137,6 @@ const Matches = () => {
                 </div>)}
             </div>}
         </div>
-      </main>
-    </div>;
+      </main>;
 };
 export default Matches;

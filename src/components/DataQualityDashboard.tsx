@@ -7,12 +7,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface DataQualityLog {
   id: string;
   data_source: string;
-  completeness_score: number;
-  accuracy_score: number;
-  freshness_score: number;
-  consistency_score: number;
-  issues_found: string[];
-  created_at: string;
+  completeness_score: number | null;
+  accuracy_score: number | null;
+  freshness_score: number | null;
+  consistency_score: number | null;
+  issues_detected: unknown; // JSON type from DB
+  created_at: string | null;
+  created_by: string | null;
 }
 export const DataQualityDashboard = () => {
   const {
@@ -41,10 +42,10 @@ export const DataQualityDashboard = () => {
   }
   const latestLog = qualityLogs?.[0];
   const avgScores = qualityLogs?.reduce((acc, log) => ({
-    completeness: acc.completeness + log.completeness_score,
-    accuracy: acc.accuracy + log.accuracy_score,
-    freshness: acc.freshness + log.freshness_score,
-    consistency: acc.consistency + log.consistency_score
+    completeness: acc.completeness + (log.completeness_score || 0),
+    accuracy: acc.accuracy + (log.accuracy_score || 0),
+    freshness: acc.freshness + (log.freshness_score || 0),
+    consistency: acc.consistency + (log.consistency_score || 0)
   }), {
     completeness: 0,
     accuracy: 0,
@@ -79,56 +80,56 @@ export const DataQualityDashboard = () => {
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Completeness</span>
-                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.completeness_score)}`}>
-                    {latestLog.completeness_score.toFixed(1)}%
+                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.completeness_score || 0)}`}>
+                    {(latestLog.completeness_score || 0).toFixed(1)}%
                   </span>
                 </div>
-                <Progress value={latestLog.completeness_score} className="h-2" />
+                <Progress value={latestLog.completeness_score || 0} className="h-2" />
               </div>
 
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Accuracy</span>
-                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.accuracy_score)}`}>
-                    {latestLog.accuracy_score.toFixed(1)}%
+                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.accuracy_score || 0)}`}>
+                    {(latestLog.accuracy_score || 0).toFixed(1)}%
                   </span>
                 </div>
-                <Progress value={latestLog.accuracy_score} className="h-2" />
+                <Progress value={latestLog.accuracy_score || 0} className="h-2" />
               </div>
 
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Freshness</span>
-                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.freshness_score)}`}>
-                    {latestLog.freshness_score.toFixed(1)}%
+                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.freshness_score || 0)}`}>
+                    {(latestLog.freshness_score || 0).toFixed(1)}%
                   </span>
                 </div>
-                <Progress value={latestLog.freshness_score} className="h-2" />
+                <Progress value={latestLog.freshness_score || 0} className="h-2" />
               </div>
 
               <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Consistency</span>
-                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.consistency_score)}`}>
-                    {latestLog.consistency_score.toFixed(1)}%
+                  <span className={`text-sm font-semibold ${getScoreColor(latestLog.consistency_score || 0)}`}>
+                    {(latestLog.consistency_score || 0).toFixed(1)}%
                   </span>
                 </div>
-                <Progress value={latestLog.consistency_score} className="h-2" />
+                <Progress value={latestLog.consistency_score || 0} className="h-2" />
               </div>
             </div>
 
-            {latestLog.issues_found && latestLog.issues_found.length > 0 && <Alert>
+            {latestLog.issues_detected && Array.isArray(latestLog.issues_detected) && (latestLog.issues_detected as string[]).length > 0 && <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   <p className="font-semibold mb-2">Issues Found:</p>
                   <ul className="list-disc list-inside space-y-1">
-                    {latestLog.issues_found.map((issue, idx) => <li key={idx} className="text-sm">{issue}</li>)}
+                    {(latestLog.issues_detected as string[]).map((issue, idx) => <li key={idx} className="text-sm">{issue}</li>)}
                   </ul>
                 </AlertDescription>
               </Alert>}
 
             <p className="text-xs text-muted-foreground">
-              Last checked: {new Date(latestLog.created_at).toLocaleString()}
+              Last checked: {latestLog.created_at ? new Date(latestLog.created_at).toLocaleString() : 'Never'}
             </p>
           </>}
 

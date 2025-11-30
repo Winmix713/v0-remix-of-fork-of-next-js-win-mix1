@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { usePhaseFlags } from '@/hooks/usePhaseFlags';
 import { useRequireAuth, useRequireRole } from '@/hooks/useAuth';
+import type { UserRole } from '@/providers/AuthContext';
 import PageLoading from '@/components/ui/PageLoading';
 import AppLayout from '@/components/layout/AppLayout';
 
@@ -66,7 +67,7 @@ const ProtectedRoute: React.FC<{
   showSidebar?: boolean;
 }> = ({ children, requiredRoles, showSidebar = true }) => {
   const { loading: authLoading, authenticated } = useRequireAuth();
-  const { loading: roleLoading, authorized } = useRequireRole(requiredRoles || []);
+  const { loading: roleLoading, authorized } = useRequireRole((requiredRoles as UserRole[]) || []);
 
   if (authLoading || roleLoading) {
     return <PageLoading message="Checking permissions..." />;

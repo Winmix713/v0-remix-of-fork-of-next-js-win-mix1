@@ -9,14 +9,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuditLog } from "@/hooks/admin/useAuditLog";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 interface FeedbackWithDetails {
   id: string;
-  prediction_id: string;
+  prediction_id: string | null;
   user_suggestion: string;
   submitted_by: string | null;
   metadata: Record<string, unknown> | null;
