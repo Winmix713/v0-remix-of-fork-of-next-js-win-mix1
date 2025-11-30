@@ -32,6 +32,11 @@ export const apiOrigins = {
 
 // Feature flags configuration
 export const phaseFlags = {
+  phase5: envVars.VITE_ENABLE_PHASE5 === 'true',
+  phase6: envVars.VITE_ENABLE_PHASE6 === 'true',
+  phase7: envVars.VITE_ENABLE_PHASE7 === 'true',
+  phase8: envVars.VITE_ENABLE_PHASE8 === 'true',
+  phase9: envVars.VITE_ENABLE_PHASE9 === 'true',
   // Add your feature flags here
   // Example:
   // enableNewFeature: envVars.VITE_ENABLE_NEW_FEATURE === 'true',
